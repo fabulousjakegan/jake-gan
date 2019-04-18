@@ -1,6 +1,8 @@
 /vae/dataset
 /vae/etc/*.npf
 logdir/
+/custom-vae/dataset
+/custom-vae/etc
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

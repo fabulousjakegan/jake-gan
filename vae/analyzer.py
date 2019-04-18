@@ -10,17 +10,14 @@ import tensorflow as tf
 # Script for feature extraction
 
 args = tf.app.flags.FLAGS
-# tf.app.flags.DEFINE_string('dir_to_wav', './dataset/vcc2016/wav', 'Dir to *.wav')
 tf.app.flags.DEFINE_string('dir_to_wav', './dataset/vcc2016/wav', 'Dir to *.wav')
-
 tf.app.flags.DEFINE_string('dir_to_bin', './dataset/vcc2016/bin', 'Dir to output *.bin')
 tf.app.flags.DEFINE_integer('fs', 16000, 'Global sampling frequency')
 tf.app.flags.DEFINE_float('f0_ceil', 500, 'Global f0 ceiling')
 
 EPSILON = 1e-10
-# SETS = ['Testing Set']
-SETS = ['Training Set', 'Testing Set']  # TODO: for VCC2016 only
-SPEAKERS = ['TF2', 'SM1', 'SF2', 'SF3', 'TM1', 'TF1', 'SM2', 'SF1', 'TM2', 'TM3']#[s.strip() for s in tf.gfile.GFile('./etc/speakers_vctk.tsv', 'r').readlines()]
+SETS = ['Training Set', 'Testing Set']  # NOTE: for VCC2016 only
+SPEAKERS = ['TF2', 'SM1', 'SF2', 'SF3', 'TM1', 'TF1', 'SM2', 'SF1', 'TM2', 'TM3']
 FFT_SIZE = 1024
 SP_DIM = FFT_SIZE // 2 + 1
 FEAT_DIM = SP_DIM + SP_DIM + 1 + 1 + 1  # [sp, ap, f0, en, s]
@@ -29,8 +26,8 @@ RECORD_BYTES = FEAT_DIM * 4  # all features saved in `float32`
 
 def wav2pw(x, fs=16000, fft_size=FFT_SIZE):
     ''' Extract WORLD feature from waveform '''
-    _f0, t = pw.dio(x, fs, f0_ceil=args.f0_ceil)            # raw pitch extractor
-    f0 = pw.stonemask(x, _f0, t, fs)  # pitch refinement
+    _f0, t = pw.dio(x, fs, f0_ceil=args.f0_ceil) # raw pitch extractor
+    f0 = pw.stonemask(x, _f0, t, fs) # pitch refinement
     sp = pw.cheaptrick(x, f0, t, fs, fft_size=fft_size)
     ap = pw.d4c(x, f0, t, fs, fft_size=fft_size) # extract aperiodicity
     return {
@@ -57,10 +54,9 @@ def extract_and_save_bin_to(dir_to_bin, dir_to_source):
     sets = [s for s in os.listdir(dir_to_source) if s in SETS]
     for d in sets:
         path = join(dir_to_source, d)
-        speakers = [s for s in os.listdir(path)]#if s in SPEAKERS]
+        speakers = [s for s in os.listdir(path)]
         for s in speakers:
             path = join(dir_to_source, d, s)
-            print (path)
             output_dir = join(dir_to_bin, d, s)
             if not tf.gfile.Exists(output_dir):
                 tf.gfile.MakeDirs(output_dir)
@@ -78,33 +74,6 @@ def extract_and_save_bin_to(dir_to_bin, dir_to_source):
                     with open(join(output_dir, '{}.bin'.format(b)), 'wb') as fp:
                         fp.write(features.tostring())
                         print(join(output_dir, '{}.bin'.format(b)))
-
-
-# def extract_and_save_bin_to(dir_to_bin, dir_to_source):
-#     print("check")
-#     # sets = [s for s in os.listdir(dir_to_source) if s in SETS]
-#     # for d in sets:
-#     path = dir_to_source
-#     speakers = [s for s in os.listdir(path) if s in SPEAKERS]
-#     for s in speakers:
-#         path = join(dir_to_source, s)
-#         output_dir = join(dir_to_bin, s)
-#         if not tf.gfile.Exists(output_dir):
-#             tf.gfile.MakeDirs(output_dir)
-#         for f in os.listdir(path):
-#             filename = join(path, f)
-#             print(filename)
-#             if not os.path.isdir(filename):
-#                 features = extract(filename)
-#                 labels = SPEAKERS.index(s) * np.ones(
-#                     [features.shape[0], 1],
-#                     np.float32,
-#                 )
-#                 b = os.path.splitext(f)[0]
-#                 features = np.concatenate([features, labels], 1)
-#                 with open(join(output_dir, '{}.bin'.format(b)), 'wb') as fp:
-#                     fp.write(features.tostring())
-#                     print("check")
 
 
 class Tanhize(object):
@@ -166,7 +135,6 @@ def read(
             capacity=capacity,
             min_after_dequeue=min_after_dequeue,
             num_threads=num_threads,
-            # enqueue_many=True,
         )
 
 

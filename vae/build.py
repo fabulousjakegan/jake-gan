@@ -9,9 +9,7 @@ args = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string(
     'train_file_pattern',
     './dataset/vcc2016/bin/Testing Set/*/*.bin',
-    # './dataset/vcc2016/wav/Testing Set/*/*.wav',
     'testing dir (to *.bin)')
-
 
 
 def main():
@@ -39,7 +37,7 @@ def main():
     f0_all = np.concatenate(f0_all, axis=0)
 
 
-    # ==== F0 stats ====
+    # ==== Save f0 stats for each speaker ====
     for s in SPEAKERS:
         print('Speaker {}'.format(s), flush=True)
         f0 = f0_all[SPEAKERS.index(s) == y_all]
@@ -53,9 +51,7 @@ def main():
             fp.write(np.asarray([mu, std]).tostring())
 
 
-    # ==== Min/Max value ====
-    # mu = x_all.mean(0)
-    # std = x_all.std(0)
+    # ==== Save 0.5th and 99.5th percentile values ====
     q005 = np.percentile(x_all, 0.5, axis=0)
     q995 = np.percentile(x_all, 99.5, axis=0)
 
@@ -65,37 +61,6 @@ def main():
 
     with open('./etc/xmax.npf', 'wb') as fp:
         fp.write(q995.tostring())
-
-
-
-# def test():
-    # # ==== Test: batch mixer (conclusion: capacity should be larger to make sure good mixing) ====
-    # x, y = read('./dataset/vcc2016/bin/*/*/1*001.bin', 32, min_after_dequeue=1024, capacity=2048)
-    # sv = tf.train.Supervisor()
-    # with sv.managed_session() as sess:
-    #     for _ in range(200):
-    #         x_, y_ = sess.run([x, y])
-    #         print(y_)
-
-
-    # # ===== Read binary ====
-    # features = read_whole_features('./dataset/vcc2016/bin/Training Set/SF1/*001.bin')
-
-    # sv = tf.train.Supervisor()
-    # with sv.managed_session() as sess:
-    #     features = sess.run(features)
-
-    # y = pw2wav(features)
-    # sf.write('test1.wav', y, 16000)  # TODO fs should be specified externally.
-
-
-    # # ==== Direct read =====
-    # f = './dataset/vcc2016/bin/Training Set/SF1/100001.bin'
-    # features = np.fromfile(f, np.float32)
-    # features = np.reshape(features, [-1, 513*2 + 1 + 1 + 1]) # f0, en, spk
-
-    # y = pw2wav(features)
-    # sf.write('test2.wav', y, 16000)
 
 
 if __name__ == '__main__':
