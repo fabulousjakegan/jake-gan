@@ -1,6 +1,6 @@
 python convert.py \
---src p225 \
---trg p226 \
+--src SF1 \
+--trg TM3 \
 --model ConvVAE \
---checkpoint logdir/train/1119-1314-49-2017/model.ckpt-40931 \
---file_pattern "./dataset/vctk/bin/Training Set/{}/*.bin"
+--checkpoint logdir/train/0419-2108-02-2019/model.ckpt-46381 \
+--file_pattern "./dataset/vcc2016/bin/Testing Set/{}/*.bin"
